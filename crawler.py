@@ -6,6 +6,8 @@ def crawler_controller(keyword):
     
     driver = webdriver.Chrome()
     news = naver_list(keyword, news, driver)
+    news = naver_article(news, driver)
+
     yahoo(keyword, news, driver)
 
 def naver_list(keyword, dict, driver):
@@ -26,6 +28,13 @@ def naver_list(keyword, dict, driver):
     
     return dict
     
+def naver_article(news, driver):
+    for article in news['naver']:
+        driver.get(article['url'])
+        article['title'] = driver.find_element(By.CLASS_NAME, "media_end_head_headline").find_element(By.XPATH, "./span").text
+        article['main_text'] = driver.find_element(By.TAG_NAME, "article").get_attribute("innerHTML")
+
+    return news
 
 def yahoo(keyword, dict, driver):
     dict['yahoo'] = []
