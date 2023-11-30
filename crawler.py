@@ -4,7 +4,10 @@ from selenium.webdriver.common.by import By
 def crawler_controller(keyword):
     news = {}
     
-    driver = webdriver.Chrome()
+    options = webdriver.ChromeOptions()
+    options.add_argument('headless')
+    driver = webdriver.Chrome(options=options)
+
     news = naver_list(keyword, news, driver)
     news = naver_article(news, driver)
 
@@ -37,7 +40,25 @@ def naver_article(news, driver):
     return news
 
 def yahoo(keyword, dict, driver):
+    '''
+    티커 검색하는거 만들어야함
+    '''
+    
+    url = 'https://finance.yahoo.com/quote/'
+    ticker = '005930.KS'
     dict['yahoo'] = []
     
+    driver.get(url + ticker)
+    news = driver.find_elements(By.CLASS_NAME, "js-stream-content Pos(r)")
+    for article in news:
+        '''
+        광고 전처리 필요
+        '''
+        dict['yahoo'].append({"url":""})
+        
+    return dict
+
+def yahoo_article(news, driver):
+    pass    
 
 crawler_controller("삼성전자")
