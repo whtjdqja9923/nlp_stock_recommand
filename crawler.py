@@ -1,5 +1,6 @@
 from selenium import webdriver
 from selenium.webdriver.common.by import By
+import pandas as pd
 
 def crawler_controller(keyword):
     news = {}
@@ -10,8 +11,15 @@ def crawler_controller(keyword):
 
     news = naver_list(keyword, news, driver)
     news = naver_article(news, driver)
+    
+    # yahoo(keyword, news, driver)
 
-    yahoo(keyword, news, driver)
+    for source, articles in news.items():
+        df = pd.DataFrame.from_dict(data=articles)
+        df['source'] = source
+        # print(df.head())
+    
+    df.to_csv('./article_before_preprocess_'+keyword+'.csv', sep='|', encoding='utf-8', index=False)
 
 def naver_list(keyword, dict, driver):
     url = "https://search.naver.com/search.naver?where=news&sm=tab_jum&query="
@@ -30,12 +38,15 @@ def naver_list(keyword, dict, driver):
         dict['naver'].append({"url":n_url})
     
     return dict
-    
+
 def naver_article(news, driver):
+    id = 0
     for article in news['naver']:
         driver.get(article['url'])
+        article['id'] = id
+        id += 1
         article['title'] = driver.find_element(By.CLASS_NAME, "media_end_head_headline").find_element(By.XPATH, "./span").text
-        article['main_text'] = driver.find_element(By.TAG_NAME, "article").get_attribute("innerHTML")
+        article['text'] = driver.find_element(By.TAG_NAME, "article").get_attribute("innerHTML")
 
     return news
 
@@ -59,6 +70,4 @@ def yahoo(keyword, dict, driver):
     return dict
 
 def yahoo_article(news, driver):
-    pass    
-
-crawler_controller("삼성전자")
+    pass
